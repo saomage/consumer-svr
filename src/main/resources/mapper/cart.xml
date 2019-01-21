@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfut.shopping.mapper.CartMapper">
+
+	<resultMap type="com.hfut.shopping.domain.CartMsg"
+		id="cartMsg">
+		<id property="id" column="cart_id" />
+		<result property="commodityId" column="cart_commodity_id" />
+		<result property="commodityName" column="cart_commodity_name" />
+		<result property="shopId" column="cart_commodity_shop_id" />
+		<result property="shopName" column="cart_commodity_shop_name" />
+		<result property="type" column="cart_commodity_type" />
+		<result property="price" column="cart_commodity_price" />
+		<result property="consumerId" column="cart_consumer_id" />
+	</resultMap>
+	
+	<resultMap type="com.hfut.shopping.domain.ShopOrder"
+		id="Order">
+		<association property="shop" javaType="com.hfut.shopping.domain.Shop">
+			<id property="id" column="cart_commodity_shop_id" />
+		</association>
+		<collection property="orderUtil" ofType="com.hfut.shopping.domain.OrderUtil">
+			<result property="type" column="cart_commodity_type" />
+			<result property="price" column="price" />
+		</collection>
+	</resultMap>
+
+	<sql id="cartMsgField">
+		cart_id ,
+		cart_commodity_id ,
+		cart_commodity_name ,
+		cart_commodity_shop_id ,
+		cart_commodity_shop_name ,
+		cart_commodity_type ,
+		cart_commodity_price ,
+		cart_consumer_id
+	</sql>
+
+	<select id="selectCartMsg" resultMap="cartMsg">
+		select
+		<include refid="cartMsgField" />
+		from cart
+		<where>
+			cart_consumer_id = #{consumerId}
+		</where>
+	</select>
+	
+	<select id="selectOrder" resultMap="Order">
+		select cart_commodity_shop_id,cart_commodity_type,sum(cart_commodity_price) price
+		from cart 
+		<where>
+			cart_consumer_id = #{consumerId}
+		</where>
+		group by cart_commodity_shop_id,cart_commodity_type
+	</select>
+	
+	 <insert id="insertCartMsg">
+    insert into  cart (
+				      cart_commodity_id,
+				      cart_commodity_name,
+				      cart_commodity_shop_id,
+				      cart_commodity_shop_name,
+				      cart_commodity_type,
+				      cart_commodity_price,
+				      cart_consumer_id
+                     )
+                     
+                   values(
+                     #{commodityId},
+                     #{commodityName},
+                     #{shopId},
+                     #{shopName},
+                     #{type},
+                     #{price},
+                     #{consumerId}
+                   )
+   </insert>
+   
+   <delete id="delete">
+     delete from cart
+     where cart_id = #{id}
+   </delete>
+
+</mapper>
